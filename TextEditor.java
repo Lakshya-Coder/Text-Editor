@@ -30,30 +30,17 @@ public class TextEditor extends JFrame implements ActionListener {
 	private final int HIGHT = 660;
 
 	// Constructor
-	TextEditor() {
-		// Frame
-		this.setDefaultCloseOperation(3);
-		this.setTitle("Text Editor");
-		this.setSize(WIDTH, HIGHT);
-		this.setLayout(new FlowLayout());
-		this.setLocationRelativeTo(null);
+	public TextEditor() {
+		setUpFrame();
+		setUpTextArea();
+		setUpScrollPain();
+		setUpMenuBar();
+		setUpMiddleBar();
 
-		// Object of textArea
-		textArea = new JTextArea();
+		this.setVisible(true);
+	}
 
-		// Setting of textArea
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		textArea.setFont(new Font("Arial", Font.PLAIN, 20));
-
-		// Object of scrollPain
-		scrollPain = new JScrollPane(textArea);
-
-		// Setting of scrollPain
-		scrollPain.setPreferredSize(new Dimension(WIDTH - 50, HIGHT - 50));
-		scrollPain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		// Object of fontSize
+	private void setUpMiddleBar() {
 		fontSize = new JSpinner();
 
 		fontLabel = new JLabel("Font: ");
@@ -78,8 +65,14 @@ public class TextEditor extends JFrame implements ActionListener {
 		fontBox.addActionListener(this);
 		fontBox.setSelectedItem("Arial");
 
-		// --------menu bar---------------//
+		this.add(fontLabel);
+		this.add(fontSize);
+		this.add(fontColorButton);
+		this.add(fontBox);
+		this.add(scrollPain);
+	}
 
+	private void setUpMenuBar() {
 		menuBar = new JMenuBar();
 		fileMenu = new JMenu("File");
 		openItem = new JMenuItem("Open");
@@ -98,93 +91,116 @@ public class TextEditor extends JFrame implements ActionListener {
 		// Add file menu to menuBar
 		menuBar.add(fileMenu);
 
-		// --------menu bar---------------//
 		this.setJMenuBar(menuBar);
-		this.add(fontLabel);
-		this.add(fontSize);
-		this.add(fontColorButton);
-		this.add(fontBox);
-		this.add(scrollPain);
-		this.setVisible(true);
+	}
 
+	private void setUpScrollPain() {
+		scrollPain = new JScrollPane(textArea);
+
+		scrollPain.setPreferredSize(new Dimension(WIDTH - 50, HIGHT - 50));
+		scrollPain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+	}
+
+	private void setUpTextArea() {
+		textArea = new JTextArea();
+
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
+		textArea.setFont(new Font("Arial", Font.PLAIN, 20));
+	}
+
+	private void setUpFrame() {
+		this.setDefaultCloseOperation(3);
+		this.setTitle("Text Editor");
+		this.setSize(WIDTH, HIGHT);
+		this.setLayout(new FlowLayout());
+		this.setLocationRelativeTo(null);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
-		if (e.getSource() == fontColorButton) {
-			JColorChooser colorChooser = new JColorChooser();
-
-			Color color = colorChooser.showDialog(null, "Chose a color", Color.black);
-
-			textArea.setForeground(color);
-		}
-
-		if (e.getSource() == fontBox) {
-			textArea.setFont(new Font((String) fontBox.getSelectedItem(), Font.PLAIN, textArea.getFont().getSize()));
-		}
-
-		if (e.getSource() == openItem) {
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setCurrentDirectory(new File("C:\\Users\\Lakshya Seth\\Desktop"));
-
-			FileNameExtensionFilter filter = new FileNameExtensionFilter("Text File", "txt");
-			fileChooser.setFileFilter(filter);
-
-			int response = fileChooser.showOpenDialog(null);
-
-			if (response == JFileChooser.APPROVE_OPTION) {
-
-				File file = new File(fileChooser.getSelectedFile().getAbsolutePath());
-
-				Scanner sc = null;
-
-				try {
-					sc = new Scanner(file);
-					if (file.isFile()) {
-						while (sc.hasNextLine()) {
-							String n = sc.nextLine() + "\n";
-							textArea.append(n);
-						}
-					}
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				}
-
-				finally {
-					sc.close();
-				}
-			}
-		}
-		if (e.getSource() == saveItem) {
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setCurrentDirectory(new File("C:\\Users\\Lakshya Seth\\Desktop>"));
-
-			int response = fileChooser.showSaveDialog(null);
-
-			if (response == JFileChooser.APPROVE_OPTION) {
-
-				File file;
-				PrintWriter fileOut = null;
-
-				file = new File(fileChooser.getSelectedFile().getAbsolutePath());
-				try {
-					fileOut = new PrintWriter(file);
-					fileOut.println(textArea.getText());
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				}
-
-				finally {
-					fileOut.close();
-				}
-			}
-		}
-
-		if (e.getSource() == exitItem) {
-			System.exit(0);
-		}
-
+		if (e.getSource() == fontColorButton)
+			changeFontColor();
+		else if (e.getSource() == fontBox)
+			setFont();
+		else if (e.getSource() == openItem)
+			openFile();
+		else if (e.getSource() == saveItem)
+			saveFile();
+		else if (e.getSource() == exitItem)
+			exit();
 	}
 
+	private void exit() {
+		System.exit(0);
+	}
+
+	private void setFont() {
+		textArea.setFont(new Font((String) fontBox.getSelectedItem(), Font.PLAIN, textArea.getFont().getSize()));
+	}
+
+	private void changeFontColor() {
+		JColorChooser colorChooser = new JColorChooser();
+
+		Color color = colorChooser.showDialog(null, "Chose a color", Color.black);
+
+		textArea.setForeground(color);
+	}
+
+	private void openFile() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("C:\\Users\\Lakshya Seth\\Desktop"));
+
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Text File", "txt");
+		fileChooser.setFileFilter(filter);
+
+		int response = fileChooser.showOpenDialog(null);
+
+		if (response == JFileChooser.APPROVE_OPTION) {
+
+			File file = new File(fileChooser.getSelectedFile().getAbsolutePath());
+
+			Scanner sc = null;
+
+			try {
+				sc = new Scanner(file);
+				if (file.isFile()) {
+					while (sc.hasNextLine()) {
+						String n = sc.nextLine() + "\n";
+						textArea.append(n);
+					}
+				}
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			}
+
+			finally {
+				sc.close();
+			}
+		}
+	}
+
+	private void saveFile() {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("C:\\Users\\Lakshya Seth\\Desktop>"));
+
+		int response = fileChooser.showSaveDialog(null);
+
+		if (response == JFileChooser.APPROVE_OPTION) {
+			File file;
+			PrintWriter fileOut = null;
+
+			file = new File(fileChooser.getSelectedFile().getAbsolutePath());
+			try {
+				fileOut = new PrintWriter(file);
+				fileOut.println(textArea.getText());
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			}
+
+			finally {
+				fileOut.close();
+			}
+		}
+	}
 }
