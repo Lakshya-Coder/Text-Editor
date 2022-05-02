@@ -1,35 +1,29 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Scanner;
-
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class TextEditor extends JFrame implements ActionListener {
 
-	// Object
-	JTextArea textArea;
-	JScrollPane scrollPain;
-	JLabel fontLabel;
-	JSpinner fontSize;
-	JButton fontColorButton;
-	JComboBox fontBox;
+	private static final int WIDTH = 1280;
+	private static final int HIGHT = 660;
 
-	JMenuBar menuBar;
-	JMenu fileMenu;
-	JMenuItem openItem;
-	JMenuItem saveItem;
-	JMenuItem exitItem;
+	private JTextArea textArea;
+	private JScrollPane scrollPain;
+	private JLabel fontLabel;
+	private JSpinner fontSizeSlider;
+	private JButton fontColorButton;
+	private JComboBox fontBox;
 
-	// Variable
-	private final int WIDTH = 1280;
-	private final int HIGHT = 660;
+	private JMenuBar menuBar;
+	private JMenu fileMenu;
+	private JMenuItem openItem;
+	private JMenuItem saveItem;
+	private JMenuItem exitItem;
 
-	// Constructor
 	public TextEditor() {
 		setUpFrame();
 		setUpTextArea();
@@ -41,35 +35,29 @@ public class TextEditor extends JFrame implements ActionListener {
 	}
 
 	private void setUpMiddleBar() {
-		fontSize = new JSpinner();
+		setUpFontSizeSlider();
+		setUpFontBox();
 
 		fontLabel = new JLabel("Font: ");
-
-		// Setting of fontSize
-		fontSize.setPreferredSize(new Dimension(50, 25));
-		fontSize.setValue(20);
-		fontSize.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				textArea.setFont(new Font(textArea.getFont().getFamily(), Font.PLAIN, (int) fontSize.getValue()));
-			}
-		});
 
 		fontColorButton = new JButton("Color");
 		fontColorButton.addActionListener(this);
 
-		String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+		this.add(fontLabel);
+		this.add(fontColorButton);
+		this.add(scrollPain);
+	}
+
+	private void setUpFontBox() {
+		String[] fonts = 
+			GraphicsEnvironment.getLocalGraphicsEnvironment()
+				.getAvailableFontFamilyNames();
 
 		fontBox = new JComboBox(fonts);
 		fontBox.addActionListener(this);
 		fontBox.setSelectedItem("Arial");
 
-		this.add(fontLabel);
-		this.add(fontSize);
-		this.add(fontColorButton);
 		this.add(fontBox);
-		this.add(scrollPain);
 	}
 
 	private void setUpMenuBar() {
@@ -92,6 +80,23 @@ public class TextEditor extends JFrame implements ActionListener {
 		menuBar.add(fileMenu);
 
 		this.setJMenuBar(menuBar);
+	}
+
+	private void setUpFontSizeSlider() {
+		fontSizeSlider = new JSpinner();
+
+		// Setting of fontSizeSlider
+		fontSizeSlider.setPreferredSize(new Dimension(50, 25));
+		fontSizeSlider.setValue(20);
+		fontSizeSlider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateFontSize();
+			}
+		});
+
+		this.add(fontSizeSlider);
 	}
 
 	private void setUpScrollPain() {
@@ -117,12 +122,22 @@ public class TextEditor extends JFrame implements ActionListener {
 		this.setLocationRelativeTo(null);
 	}
 
+	private void updateFontSize() {
+		textArea.setFont(
+			new Font(
+				textArea.getFont().getFamily(),
+				Font.PLAIN,
+		 		(int) fontSizeSlider.getValue()
+			)
+		);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fontColorButton)
 			changeFontColor();
 		else if (e.getSource() == fontBox)
-			setFont();
+			updateFont();
 		else if (e.getSource() == openItem)
 			openFile();
 		else if (e.getSource() == saveItem)
@@ -135,7 +150,7 @@ public class TextEditor extends JFrame implements ActionListener {
 		System.exit(0);
 	}
 
-	private void setFont() {
+	private void updateFont() {
 		textArea.setFont(new Font((String) fontBox.getSelectedItem(), Font.PLAIN, textArea.getFont().getSize()));
 	}
 
